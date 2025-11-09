@@ -81,7 +81,7 @@ export const useTimer = ({ phases, onPhaseChange, onFinish }: UseTimerProps) => 
           return phases[nextPhaseIndex].duration * 60;
         }
 
-        // Hackathon finished
+        // Taller finalizado
         stopTimer();
         setStatus(TimerStatus.FINISHED);
         onFinish?.();

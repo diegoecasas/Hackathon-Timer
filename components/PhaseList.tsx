@@ -9,7 +9,7 @@ interface PhaseListProps {
 const PhaseList: React.FC<PhaseListProps> = ({ phases, currentPhaseIndex }) => {
   return (
     <div className="bg-white/10 dark:bg-gray-800/50 p-6 rounded-2xl shadow-lg border border-white/20">
-      <h3 className="text-xl font-bold text-teal-300 mb-4">Cronograma del Hackathon</h3>
+      <h3 className="text-xl font-bold text-teal-300 mb-4">Cronograma del Taller de Innovación</h3>
       <ul className="space-y-3">
         {phases.map((phase, index) => (
           <li

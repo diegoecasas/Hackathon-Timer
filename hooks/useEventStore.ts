@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { HackathonEvent } from '../types';
 
-const STORAGE_KEY = 'hackathon_events';
+const STORAGE_KEY = 'innovacion_talleres';
 
 export const useEventStore = () => {
   const [events, setEvents] = useState<HackathonEvent[]>([]);
@@ -13,7 +13,7 @@ export const useEventStore = () => {
         setEvents(JSON.parse(storedEvents));
       }
     } catch (error) {
-      console.error("Failed to load events from local storage", error);
+      console.error("Failed to load talleres from local storage", error);
       setEvents([]);
     }
   }, []);
@@ -23,7 +23,7 @@ export const useEventStore = () => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEvents));
       setEvents(updatedEvents);
     } catch (error) {
-      console.error("Failed to save events to local storage", error);
+      console.error("Failed to save talleres to local storage", error);
     }
   }, []);
 
@@ -42,7 +42,7 @@ export const useEventStore = () => {
 
 
   const deleteEvent = useCallback((eventId: string) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este evento?')) {
+    if (window.confirm('¿Estás seguro de que quieres eliminar este taller?')) {
       const updatedEvents = events.filter(event => event.id !== eventId);
       saveEventsToStorage(updatedEvents);
     }

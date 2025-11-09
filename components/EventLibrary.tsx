@@ -38,13 +38,13 @@ const EventLibrary: React.FC<EventLibraryProps> = ({ events, onStartEvent, onEdi
   return (
     <div className="w-full max-w-5xl mx-auto p-4 sm:p-8">
       <div className="text-center mb-10">
-        <h1 className="text-5xl font-extrabold text-teal-300">Mis Eventos de Hackathon</h1>
-        <p className="text-gray-400 mt-3 text-lg">Selecciona un evento para comenzar o crea uno nuevo.</p>
+        <h1 className="text-5xl font-extrabold text-teal-300">Mis Talleres de Innovación</h1>
+        <p className="text-gray-400 mt-3 text-lg">Selecciona un taller para comenzar o crea uno nuevo.</p>
       </div>
 
       <div className="text-center mb-10">
         <button onClick={onCreateNew} className="px-10 py-4 text-xl font-bold rounded-lg transition-all duration-300 bg-teal-500 text-white hover:bg-teal-400 focus:ring-4 focus:ring-teal-300 shadow-lg hover:shadow-xl">
-          + Crear Nuevo Evento
+          + Crear Nuevo Taller
         </button>
       </div>
 
@@ -62,8 +62,8 @@ const EventLibrary: React.FC<EventLibraryProps> = ({ events, onStartEvent, onEdi
         </div>
       ) : (
         <div className="text-center bg-white/5 p-10 rounded-2xl border border-dashed border-gray-600">
-          <h2 className="text-2xl font-semibold text-white">No tienes eventos guardados</h2>
-          <p className="text-gray-400 mt-2">¡Comienza por crear tu primer evento de hackathon!</p>
+          <h2 className="text-2xl font-semibold text-white">No tienes talleres guardados</h2>
+          <p className="text-gray-400 mt-2">¡Comienza por crear tu primer taller de innovación!</p>
         </div>
       )}
     </div>

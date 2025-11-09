@@ -16,7 +16,7 @@ const App: React.FC = () => {
   const [activeEvent, setActiveEvent] = useState<HackathonEvent | null>(null);
   const [eventToEdit, setEventToEdit] = useState<HackathonEvent | null>(null);
 
-  const [tip, setTip] = useState<string>('¡Todo listo para empezar! Presiona "Iniciar" para comenzar el hackathon.');
+  const [tip, setTip] = useState<string>('¡Todo listo para empezar! Presiona "Iniciar" para comenzar el taller de innovación.');
   const [isTipLoading, setIsTipLoading] = useState<boolean>(false);
   const [isAlarmPlaying, setIsAlarmPlaying] = useState<boolean>(false);
 
@@ -85,7 +85,7 @@ const App: React.FC = () => {
   }, [activeEvent]);
   
   const handleFinish = useCallback(() => {
-      setTip("¡Felicidades! Han completado el hackathon. ¡Gran trabajo, equipo!");
+      setTip("¡Felicidades! Han completado el taller de innovación. ¡Gran trabajo, equipo!");
       setIsAlarmPlaying(true);
   }, []);
 
@@ -119,7 +119,7 @@ const App: React.FC = () => {
 
   const handleStartEvent = (event: HackathonEvent) => {
     setActiveEvent(event);
-    setTip('¡Todo listo para empezar! Presiona "Iniciar" para comenzar el hackathon.');
+    setTip('¡Todo listo para empezar! Presiona "Iniciar" para comenzar el taller de innovación.');
     setView('timer');
   };
 
@@ -186,7 +186,7 @@ const App: React.FC = () => {
 
   if (!activeEvent) {
       // Should not happen if logic is correct, but a good fallback
-      return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Error: No event selected. <button onClick={handleGoToLibrary} className="underline ml-2">Go to library</button></div>;
+      return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Error: No se ha seleccionado ningún taller. <button onClick={handleGoToLibrary} className="underline ml-2">Ir a la biblioteca</button></div>;
   }
 
   const currentPhase = activeEvent.phases[currentPhaseIndex];
@@ -213,7 +213,7 @@ const App: React.FC = () => {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm">
           <div className="bg-gray-800 p-8 rounded-xl shadow-2xl text-center border-2 border-red-500 animate-pulse">
             <h2 className="text-3xl font-bold text-red-400 mb-4">¡Tiempo Terminado!</h2>
-            <p className="text-gray-300 mb-6">El tiempo para el hackathon ha finalizado.</p>
+            <p className="text-gray-300 mb-6">El tiempo para el taller de innovación ha finalizado.</p>
             <button
               onClick={stopAlarm}
               className="px-8 py-3 text-lg font-bold rounded-full transition-all duration-300 bg-red-600 text-white hover:bg-red-500 focus:ring-4 focus:ring-red-400"

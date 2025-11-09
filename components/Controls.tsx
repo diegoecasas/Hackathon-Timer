@@ -32,7 +32,7 @@ const Controls: React.FC<ControlsProps> = ({ status, onStart, onPause, onReset, 
         Reiniciar Fase
       </Button>
        <Button onClick={onGoToLibrary} className="bg-blue-600 text-white hover:bg-blue-500 focus:ring-blue-400">
-        Ver Eventos
+        Ver Talleres
       </Button>
     </div>
   );

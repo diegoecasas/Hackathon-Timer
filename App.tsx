@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { Phase, TimerStatus, HackathonEvent } from './types';
+import { Phase, TimerStatus, HackathonEvent, HackathonEventTemplate } from './types';
 import { useTimer } from './hooks/useTimer';
 import { useEventStore } from './hooks/useEventStore';
 import { useAuth } from './hooks/useAuth';
@@ -12,14 +12,15 @@ import CoachCorner from './components/CoachCorner';
 import EventLibrary from './components/EventLibrary';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
+import TemplateLibrary from './components/TemplateLibrary';
 
 const App: React.FC = () => {
   const { currentUser, login, logout, signup } = useAuth();
   const { events, saveEvent, deleteEvent } = useEventStore(currentUser?.id || null);
   
-  const [view, setView] = useState<'login' | 'signup' | 'library' | 'setup' | 'timer'>('login');
+  const [view, setView] = useState<'login' | 'signup' | 'library' | 'setup' | 'timer' | 'templateLibrary'>('login');
   const [activeEvent, setActiveEvent] = useState<HackathonEvent | null>(null);
-  const [eventToEdit, setEventToEdit] = useState<HackathonEvent | null>(null);
+  const [eventToEdit, setEventToEdit] = useState<Partial<HackathonEvent> | null>(null);
 
   const [tip, setTip] = useState<string>('¡Todo listo para empezar! Presiona "Iniciar" para comenzar el taller de innovación.');
   const [isTipLoading, setIsTipLoading] = useState<boolean>(false);
@@ -137,12 +138,21 @@ const App: React.FC = () => {
   };
 
   const handleCreateNew = () => {
-    setEventToEdit(null);
-    setView('setup');
+    setView('templateLibrary');
   };
 
   const handleEditEvent = (event: HackathonEvent) => {
     setEventToEdit(event);
+    setView('setup');
+  };
+
+  const handleSelectTemplate = (template: HackathonEventTemplate) => {
+    setEventToEdit(template); // No ID, so it's treated as a new event
+    setView('setup');
+  };
+
+  const handleCreateFromScratch = () => {
+    setEventToEdit(null);
     setView('setup');
   };
 
@@ -189,9 +199,11 @@ const App: React.FC = () => {
     );
   }
 
+  const mainBg = "min-h-screen bg-gray-900 flex items-center justify-center p-4 bg-gradient-to-br from-gray-900 to-[#0a192f]";
+
   if (view === 'library') {
     return (
-      <main className="min-h-screen bg-gray-900 flex items-center justify-center p-4 bg-gradient-to-br from-gray-900 to-[#0a192f]">
+      <main className={mainBg}>
         <EventLibrary 
           events={events}
           userEmail={currentUser.email}
@@ -202,6 +214,18 @@ const App: React.FC = () => {
           onLogout={logout}
         />
       </main>
+    );
+  }
+
+  if (view === 'templateLibrary') {
+    return (
+        <main className={mainBg}>
+            <TemplateLibrary
+                onSelectTemplate={handleSelectTemplate}
+                onCreateFromScratch={handleCreateFromScratch}
+                onBack={handleGoToLibrary}
+            />
+        </main>
     );
   }
 

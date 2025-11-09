@@ -4,7 +4,7 @@ import { Phase, HackathonEvent } from '../types';
 interface TimerSetupProps {
   onSave: (event: HackathonEvent) => void;
   onCancel: () => void;
-  eventToEdit?: HackathonEvent | null;
+  eventToEdit?: Partial<HackathonEvent> | null;
 }
 
 const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }) => {
@@ -13,8 +13,8 @@ const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }
 
   useEffect(() => {
     if (eventToEdit) {
-      setEventName(eventToEdit.name);
-      setPhases(eventToEdit.phases);
+      setEventName(eventToEdit.name || '');
+      setPhases(eventToEdit.phases || []);
     } else {
       setEventName('Mi Taller de Innovación');
       setPhases([
@@ -60,11 +60,13 @@ const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }
     onSave(eventData);
   };
 
+  const isEditing = eventToEdit && eventToEdit.id;
+
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-8 bg-gray-900 text-white rounded-3xl shadow-2xl border-2 border-teal-500/50">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-extrabold text-teal-300">
-            {eventToEdit ? 'Editar Taller' : 'Crear Nuevo Taller'}
+            {isEditing ? 'Editar Taller' : 'Crear Nuevo Taller'}
         </h1>
         <p className="text-gray-400 mt-2">Define el nombre y las etapas de tu taller de innovación.</p>
       </div>

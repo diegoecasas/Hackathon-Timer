@@ -1,3 +1,5 @@
+
+
 export interface Phase {
   id: string;
   name: string;
@@ -16,6 +18,9 @@ export interface HackathonEvent {
   name:string;
   phases: Phase[];
 }
+
+export type HackathonEventTemplate = Omit<HackathonEvent, 'id'>;
+
 
 export interface User {
   id: string;

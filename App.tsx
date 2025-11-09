@@ -1,15 +1,21 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { Phase, TimerStatus } from './types';
+import { Phase, TimerStatus, HackathonEvent } from './types';
 import { useTimer } from './hooks/useTimer';
+import { useEventStore } from './hooks/useEventStore';
 import { getPhaseTip } from './services/geminiService';
 import TimerSetup from './components/TimerSetup';
 import TimerDisplay from './components/TimerDisplay';
 import PhaseList from './components/PhaseList';
 import Controls from './components/Controls';
 import CoachCorner from './components/CoachCorner';
+import EventLibrary from './components/EventLibrary';
 
 const App: React.FC = () => {
-  const [phases, setPhases] = useState<Phase[] | null>(null);
+  const { events, saveEvent, deleteEvent } = useEventStore();
+  const [view, setView] = useState<'library' | 'setup' | 'timer'>('library');
+  const [activeEvent, setActiveEvent] = useState<HackathonEvent | null>(null);
+  const [eventToEdit, setEventToEdit] = useState<HackathonEvent | null>(null);
+
   const [tip, setTip] = useState<string>('¡Todo listo para empezar! Presiona "Iniciar" para comenzar el hackathon.');
   const [isTipLoading, setIsTipLoading] = useState<boolean>(false);
   const [isAlarmPlaying, setIsAlarmPlaying] = useState<boolean>(false);
@@ -18,28 +24,26 @@ const App: React.FC = () => {
   const oscillatorRef = useRef<OscillatorNode | null>(null);
 
   const playTickSound = useCallback(() => {
+    // Sound logic remains the same
     if (!audioContextRef.current) return;
     const context = audioContextRef.current;
     if (context.state === 'suspended') {
       context.resume();
     }
-
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
-
     oscillator.type = 'triangle';
-    oscillator.frequency.setValueAtTime(880, context.currentTime); // A5 pitch
+    oscillator.frequency.setValueAtTime(880, context.currentTime);
     gainNode.gain.setValueAtTime(0.5, context.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.1);
-
     oscillator.connect(gainNode);
     gainNode.connect(context.destination);
-    
     oscillator.start(context.currentTime);
     oscillator.stop(context.currentTime + 0.1);
   }, []);
 
   useEffect(() => {
+    // Alarm logic remains the same
     if (isAlarmPlaying) {
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -50,7 +54,7 @@ const App: React.FC = () => {
       }
       oscillatorRef.current = context.createOscillator();
       oscillatorRef.current.type = 'sine';
-      oscillatorRef.current.frequency.setValueAtTime(440, context.currentTime); // A4 pitch
+      oscillatorRef.current.frequency.setValueAtTime(440, context.currentTime);
       oscillatorRef.current.connect(context.destination);
       oscillatorRef.current.start();
     } else if (oscillatorRef.current) {
@@ -58,7 +62,6 @@ const App: React.FC = () => {
       oscillatorRef.current.disconnect();
       oscillatorRef.current = null;
     }
-
     return () => {
       if (oscillatorRef.current) {
         oscillatorRef.current.stop();
@@ -69,19 +72,20 @@ const App: React.FC = () => {
 
 
   const handlePhaseChange = useCallback(async (newPhaseIndex: number) => {
-    if (phases) {
+    if (activeEvent) {
       setIsTipLoading(true);
       try {
-        const phaseName = phases[newPhaseIndex].name;
+        const phaseName = activeEvent.phases[newPhaseIndex].name;
         const newTip = await getPhaseTip(phaseName);
         setTip(newTip);
       } finally {
         setIsTipLoading(false);
       }
     }
-  }, [phases]);
+  }, [activeEvent]);
   
   const handleFinish = useCallback(() => {
+      setTip("¡Felicidades! Han completado el hackathon. ¡Gran trabajo, equipo!");
       setIsAlarmPlaying(true);
   }, []);
 
@@ -94,38 +98,55 @@ const App: React.FC = () => {
     pause,
     reset,
   } = useTimer({
-    phases: phases || [],
+    phases: activeEvent?.phases || [],
     onPhaseChange: handlePhaseChange,
     onFinish: handleFinish,
   });
 
    useEffect(() => {
-      if (status === TimerStatus.RUNNING && phases) {
-        const phaseDuration = phases[currentPhaseIndex].duration * 60;
+      if (status === TimerStatus.RUNNING && activeEvent) {
+        const phaseDuration = activeEvent.phases[currentPhaseIndex].duration * 60;
         const tenPercentMark = phaseDuration * 0.1;
-        
         if (phaseTimeRemaining > 0 && phaseTimeRemaining <= tenPercentMark) {
           playTickSound();
         }
       }
-    }, [phaseTimeRemaining, status, currentPhaseIndex, phases, playTickSound]);
+    }, [phaseTimeRemaining, status, currentPhaseIndex, activeEvent, playTickSound]);
 
+  const stopAlarm = () => setIsAlarmPlaying(false);
 
-  const stopAlarm = () => {
-    setIsAlarmPlaying(false);
-  };
+  // --- View Navigation and Event Management ---
 
-  const handleSetupComplete = (configuredPhases: Phase[]) => {
-    setPhases(configuredPhases);
+  const handleStartEvent = (event: HackathonEvent) => {
+    setActiveEvent(event);
     setTip('¡Todo listo para empezar! Presiona "Iniciar" para comenzar el hackathon.');
-  };
-  
-  const handleEditConfig = () => {
-      reset();
-      setPhases(null);
+    setView('timer');
   };
 
-  const handleStart = () => {
+  const handleCreateNew = () => {
+    setEventToEdit(null);
+    setView('setup');
+  };
+
+  const handleEditEvent = (event: HackathonEvent) => {
+    setEventToEdit(event);
+    setView('setup');
+  };
+
+  const handleSaveEvent = (eventData: HackathonEvent) => {
+    saveEvent(eventData);
+    setView('library');
+  };
+
+  const handleCancelSetup = () => setView('library');
+  
+  const handleGoToLibrary = () => {
+      reset();
+      setActiveEvent(null);
+      setView('library');
+  };
+
+  const handleStartTimer = () => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
@@ -135,15 +156,40 @@ const App: React.FC = () => {
     start();
   }
 
-  if (!phases) {
+  // --- Render Logic ---
+
+  if (view === 'library') {
     return (
-      <main className="min-h-screen bg-gray-900 flex items-center justify-center p-4 bg-gradient-to-br from-gray-900 to-gray-800">
-        <TimerSetup onSetupComplete={handleSetupComplete} />
+      <main className="min-h-screen bg-gray-900 flex items-center justify-center p-4 bg-gradient-to-br from-gray-900 to-[#0a192f]">
+        <EventLibrary 
+          events={events}
+          onStartEvent={handleStartEvent}
+          onCreateNew={handleCreateNew}
+          onEditEvent={handleEditEvent}
+          onDeleteEvent={deleteEvent}
+        />
       </main>
     );
   }
 
-  const currentPhase = phases[currentPhaseIndex];
+  if (view === 'setup') {
+    return (
+      <main className="min-h-screen bg-gray-900 flex items-center justify-center p-4 bg-gradient-to-br from-gray-900 to-gray-800">
+        <TimerSetup 
+          onSave={handleSaveEvent}
+          onCancel={handleCancelSetup}
+          eventToEdit={eventToEdit}
+        />
+      </main>
+    );
+  }
+
+  if (!activeEvent) {
+      // Should not happen if logic is correct, but a good fallback
+      return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Error: No event selected. <button onClick={handleGoToLibrary} className="underline ml-2">Go to library</button></div>;
+  }
+
+  const currentPhase = activeEvent.phases[currentPhaseIndex];
   const phaseDuration = currentPhase.duration * 60;
   const phasePercentage = phaseDuration > 0 ? (phaseTimeRemaining / phaseDuration) * 100 : 0;
   
@@ -154,19 +200,12 @@ const App: React.FC = () => {
   };
 
   const isLightBg = (status === TimerStatus.RUNNING || status === TimerStatus.PAUSED) && status !== TimerStatus.FINISHED;
-  
   const { bg: backgroundClassFromPercentage, progress: progressColorFromPercentage, track: trackColorFromPercentage } = getUIColors(phasePercentage);
-
-  const backgroundClass = isLightBg
-    ? backgroundClassFromPercentage
-    : 'from-[#0a192f] to-[#112240]';
-    
+  const backgroundClass = isLightBg ? backgroundClassFromPercentage : 'from-[#0a192f] to-[#112240]';
   const progressColorClass = isLightBg ? progressColorFromPercentage : 'text-teal-400';
   const trackColorClass = isLightBg ? trackColorFromPercentage : 'text-teal-400/20';
-  
   const titleColorClass = isLightBg ? 'text-gray-900' : 'text-teal-300';
   const subtitleColorClass = isLightBg ? 'text-gray-700' : 'text-gray-400';
-
 
   return (
     <main className={`min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 space-y-8 bg-gradient-to-br ${backgroundClass} transition-colors duration-1000 ease-in-out`}>
@@ -185,13 +224,13 @@ const App: React.FC = () => {
         </div>
       )}
        <div className="text-center">
-         <h1 className={`text-4xl sm:text-5xl font-extrabold ${titleColorClass} transition-colors duration-500`}>Hackathon Timer</h1>
+         <h1 className={`text-4xl sm:text-5xl font-extrabold ${titleColorClass} transition-colors duration-500`}>{activeEvent.name}</h1>
          <p className={`${subtitleColorClass} mt-2 transition-colors duration-500`}>Mantente enfocado y energizado. ¡Estás haciendo un gran trabajo!</p>
        </div>
 
       <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 flex flex-col gap-8">
-            <PhaseList phases={phases} currentPhaseIndex={currentPhaseIndex} />
+            <PhaseList phases={activeEvent.phases} currentPhaseIndex={currentPhaseIndex} />
             <CoachCorner tip={tip} isLoading={isTipLoading} />
         </div>
         <div className="lg:col-span-2 flex flex-col items-center justify-center gap-8">
@@ -206,10 +245,10 @@ const App: React.FC = () => {
             />
             <Controls
                 status={status}
-                onStart={handleStart}
+                onStart={handleStartTimer}
                 onPause={pause}
                 onReset={reset}
-                onEdit={handleEditConfig}
+                onGoToLibrary={handleGoToLibrary}
             />
         </div>
       </div>

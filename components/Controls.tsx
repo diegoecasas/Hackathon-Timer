@@ -6,7 +6,7 @@ interface ControlsProps {
   onStart: () => void;
   onPause: () => void;
   onReset: () => void;
-  onEdit: () => void;
+  onGoToLibrary: () => void;
 }
 
 const Button: React.FC<{ onClick: () => void; className: string; children: React.ReactNode }> = ({ onClick, className, children }) => (
@@ -15,7 +15,7 @@ const Button: React.FC<{ onClick: () => void; className: string; children: React
   </button>
 );
 
-const Controls: React.FC<ControlsProps> = ({ status, onStart, onPause, onReset, onEdit }) => {
+const Controls: React.FC<ControlsProps> = ({ status, onStart, onPause, onReset, onGoToLibrary }) => {
   return (
     <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
       {(status === TimerStatus.IDLE || status === TimerStatus.PAUSED) && (
@@ -29,10 +29,10 @@ const Controls: React.FC<ControlsProps> = ({ status, onStart, onPause, onReset, 
         </Button>
       )}
       <Button onClick={onReset} className="bg-gray-600 text-white hover:bg-gray-500 focus:ring-gray-400">
-        Reiniciar
+        Reiniciar Fase
       </Button>
-       <Button onClick={onEdit} className="bg-blue-600 text-white hover:bg-blue-500 focus:ring-blue-400">
-        Editar Configuración
+       <Button onClick={onGoToLibrary} className="bg-blue-600 text-white hover:bg-blue-500 focus:ring-blue-400">
+        Ver Eventos
       </Button>
     </div>
   );

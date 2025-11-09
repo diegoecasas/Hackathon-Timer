@@ -1,4 +1,3 @@
-
 export interface Phase {
   id: string;
   name: string;
@@ -10,4 +9,10 @@ export enum TimerStatus {
   RUNNING = 'RUNNING',
   PAUSED = 'PAUSED',
   FINISHED = 'FINISHED',
+}
+
+export interface HackathonEvent {
+  id: string;
+  name:string;
+  phases: Phase[];
 }

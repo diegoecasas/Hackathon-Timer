@@ -43,8 +43,8 @@ const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onSelectTemplate, onC
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                 {/* Card para empezar desde cero */}
                 <div className="bg-white/5 p-6 rounded-2xl shadow-lg border-2 border-dashed border-gray-600 flex flex-col justify-center items-center text-center transition-colors hover:border-teal-400">
-                    <h3 className="text-2xl font-bold text-white mb-2">Desde Cero</h3>
-                    <p className="text-gray-400 mb-4 flex-grow">Crea una estructura de taller completamente personalizada.</p>
+                    <h3 className="text-2xl font-bold text-white mb-2">Crea tu propia metodología</h3>
+                    <p className="text-gray-400 mb-4 flex-grow">un consultor experto tiene la facilidad de agrupar diferentes herramientas para crear su propio taller de acuerdo a las necesidades del cliente, selecciona tus herramientas y crea tu propio taller</p>
                     <button onClick={onCreateFromScratch} className="w-full mt-auto px-4 py-2 text-base font-bold rounded-lg transition-all bg-gray-600 text-white hover:bg-gray-500 focus:ring-4 focus:ring-gray-400">
                         Empezar
                     </button>

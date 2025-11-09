@@ -87,6 +87,7 @@ function App() {
     const newEvent: Partial<HackathonEvent> = {
         name: template.name,
         daySchedules: template.daySchedules?.map(day => ({
+            id: crypto.randomUUID(), // FIX: Add missing id property to satisfy DaySchedule type
             ...day,
             phases: day.phases.map(p => ({ ...p, id: crypto.randomUUID() }))
         }))

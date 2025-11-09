@@ -13,6 +13,7 @@ export enum TimerStatus {
 }
 
 export interface DaySchedule {
+  id: string;
   startTime: string;
   endTime: string;
   phases: Phase[];

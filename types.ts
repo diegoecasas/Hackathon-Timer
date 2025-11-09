@@ -17,6 +17,8 @@ export interface HackathonEvent {
   id: string;
   name:string;
   phases: Phase[];
+  startTime?: string;
+  endTime?: string;
 }
 
 export type HackathonEventTemplate = Omit<HackathonEvent, 'id'>;

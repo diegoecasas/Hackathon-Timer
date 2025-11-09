@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Phase, TimerStatus, HackathonEvent } from './types';
 import { useTimer } from './hooks/useTimer';
 import { useEventStore } from './hooks/useEventStore';
+import { useAuth } from './hooks/useAuth';
 import { getPhaseTip } from './services/geminiService';
 import TimerSetup from './components/TimerSetup';
 import TimerDisplay from './components/TimerDisplay';
@@ -9,10 +10,14 @@ import PhaseList from './components/PhaseList';
 import Controls from './components/Controls';
 import CoachCorner from './components/CoachCorner';
 import EventLibrary from './components/EventLibrary';
+import Login from './components/Login';
+import SignUp from './components/SignUp';
 
 const App: React.FC = () => {
-  const { events, saveEvent, deleteEvent } = useEventStore();
-  const [view, setView] = useState<'library' | 'setup' | 'timer'>('library');
+  const { currentUser, login, logout, signup } = useAuth();
+  const { events, saveEvent, deleteEvent } = useEventStore(currentUser?.id || null);
+  
+  const [view, setView] = useState<'login' | 'signup' | 'library' | 'setup' | 'timer'>('login');
   const [activeEvent, setActiveEvent] = useState<HackathonEvent | null>(null);
   const [eventToEdit, setEventToEdit] = useState<HackathonEvent | null>(null);
 
@@ -22,6 +27,14 @@ const App: React.FC = () => {
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const oscillatorRef = useRef<OscillatorNode | null>(null);
+  
+  useEffect(() => {
+    if (currentUser) {
+      setView('library');
+    } else {
+      setView('login');
+    }
+  }, [currentUser]);
 
   const playTickSound = useCallback(() => {
     // Sound logic remains the same
@@ -143,7 +156,9 @@ const App: React.FC = () => {
   const handleGoToLibrary = () => {
       reset();
       setActiveEvent(null);
-      setView('library');
+      if (currentUser) {
+        setView('library');
+      }
   };
 
   const handleStartTimer = () => {
@@ -158,15 +173,33 @@ const App: React.FC = () => {
 
   // --- Render Logic ---
 
+  if (!currentUser) {
+    const authBg = "min-h-screen bg-gray-900 flex items-center justify-center p-4 bg-gradient-to-br from-gray-900 to-[#0a192f]";
+    if (view === 'signup') {
+      return (
+        <main className={authBg}>
+          <SignUp onSignUp={signup} onSwitchToLogin={() => setView('login')} />
+        </main>
+      );
+    }
+    return (
+      <main className={authBg}>
+        <Login onLogin={login} onSwitchToSignUp={() => setView('signup')} />
+      </main>
+    );
+  }
+
   if (view === 'library') {
     return (
       <main className="min-h-screen bg-gray-900 flex items-center justify-center p-4 bg-gradient-to-br from-gray-900 to-[#0a192f]">
         <EventLibrary 
           events={events}
+          userEmail={currentUser.email}
           onStartEvent={handleStartEvent}
           onCreateNew={handleCreateNew}
           onEditEvent={handleEditEvent}
           onDeleteEvent={deleteEvent}
+          onLogout={logout}
         />
       </main>
     );
@@ -185,7 +218,6 @@ const App: React.FC = () => {
   }
 
   if (!activeEvent) {
-      // Should not happen if logic is correct, but a good fallback
       return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Error: No se ha seleccionado ningún taller. <button onClick={handleGoToLibrary} className="underline ml-2">Ir a la biblioteca</button></div>;
   }
 

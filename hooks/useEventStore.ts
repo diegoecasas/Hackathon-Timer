@@ -1,39 +1,48 @@
 import { useState, useCallback, useEffect } from 'react';
 import { HackathonEvent } from '../types';
 
-const STORAGE_KEY = 'innovacion_talleres';
+const getStorageKey = (userId: string) => `innovacion_talleres_${userId}`;
 
-export const useEventStore = () => {
-  const [events, setEvents] = useState<HackathonEvent[]>(() => {
-    // Lazy initializer to read from localStorage only once on component mount
-    try {
-      const storedEvents = localStorage.getItem(STORAGE_KEY);
-      return storedEvents ? JSON.parse(storedEvents) : [];
-    } catch (error) {
-      console.error("Failed to load talleres from local storage", error);
-      return [];
-    }
-  });
+export const useEventStore = (userId: string | null) => {
+  const [events, setEvents] = useState<HackathonEvent[]>([]);
 
-  // Effect to automatically sync state changes back to localStorage
+  // Efecto para cargar los talleres cuando el userId cambia (ej: al iniciar sesión)
   useEffect(() => {
+    if (!userId) {
+      setEvents([]); // Limpiar talleres al cerrar sesión
+      return;
+    }
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+      const storedEvents = localStorage.getItem(getStorageKey(userId));
+      setEvents(storedEvents ? JSON.parse(storedEvents) : []);
+    } catch (error)
+ {
+      console.error("Failed to load talleres from local storage", error);
+      setEvents([]);
+    }
+  }, [userId]);
+
+
+  // Efecto para sincronizar automáticamente los cambios de estado con localStorage
+  useEffect(() => {
+    if (!userId || !events) return; // No guardar si no hay usuario o talleres
+    try {
+      localStorage.setItem(getStorageKey(userId), JSON.stringify(events));
     } catch (error) {
       console.error("Failed to save talleres to local storage", error);
     }
-  }, [events]);
+  }, [events, userId]);
 
   const saveEvent = useCallback((eventToSave: HackathonEvent) => {
     setEvents(currentEvents => {
       const eventExists = currentEvents.some(event => event.id === eventToSave.id);
       if (eventExists) {
-        // Update existing event
+        // Actualizar taller existente
         return currentEvents.map(event =>
           event.id === eventToSave.id ? eventToSave : event
         );
       } else {
-        // Add new event
+        // Añadir nuevo taller
         return [...currentEvents, eventToSave];
       }
     });

@@ -16,3 +16,11 @@ export interface HackathonEvent {
   name:string;
   phases: Phase[];
 }
+
+export interface User {
+  id: string;
+  email: string;
+  // En una aplicación real, NUNCA almacenes contraseñas en texto plano.
+  // Esto sería un hash seguro. Para esta demostración, es texto plano.
+  password: string; 
+}

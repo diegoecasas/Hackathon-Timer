@@ -3,10 +3,12 @@ import { HackathonEvent } from '../types';
 
 interface EventLibraryProps {
   events: HackathonEvent[];
+  userEmail: string;
   onStartEvent: (event: HackathonEvent) => void;
   onEditEvent: (event: HackathonEvent) => void;
   onDeleteEvent: (eventId: string) => void;
   onCreateNew: () => void;
+  onLogout: () => void;
 }
 
 const formatTotalDuration = (phases: HackathonEvent['phases']): string => {
@@ -34,12 +36,19 @@ const EventCard: React.FC<{ event: HackathonEvent; onStart: () => void; onEdit: 
   </div>
 );
 
-const EventLibrary: React.FC<EventLibraryProps> = ({ events, onStartEvent, onEditEvent, onDeleteEvent, onCreateNew }) => {
+const EventLibrary: React.FC<EventLibraryProps> = ({ events, userEmail, onStartEvent, onEditEvent, onDeleteEvent, onCreateNew, onLogout }) => {
   return (
     <div className="w-full max-w-5xl mx-auto p-4 sm:p-8">
-      <div className="text-center mb-10">
+      <div className="text-center mb-10 relative">
         <h1 className="text-5xl font-extrabold text-teal-300">Mis Talleres de Innovación</h1>
         <p className="text-gray-400 mt-3 text-lg">Selecciona un taller para comenzar o crea uno nuevo.</p>
+        <div className="absolute top-0 right-0 text-right hidden sm:block">
+            <p className="text-gray-400 text-sm">Sesión iniciada como:</p>
+            <p className="text-teal-300 font-semibold truncate max-w-[200px]">{userEmail}</p>
+            <button onClick={onLogout} className="mt-2 px-3 py-1 text-sm font-semibold rounded-md bg-gray-700 text-white hover:bg-gray-600 transition-colors">
+                Cerrar Sesión
+            </button>
+        </div>
       </div>
 
       <div className="text-center mb-10">
@@ -66,6 +75,12 @@ const EventLibrary: React.FC<EventLibraryProps> = ({ events, onStartEvent, onEdi
           <p className="text-gray-400 mt-2">¡Comienza por crear tu primer taller de innovación!</p>
         </div>
       )}
+        <div className="mt-8 text-center sm:hidden">
+             <p className="text-gray-400 text-sm">Sesión iniciada como: <span className="text-teal-300 font-semibold">{userEmail}</span></p>
+             <button onClick={onLogout} className="mt-2 px-4 py-2 text-base font-semibold rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors">
+                Cerrar Sesión
+            </button>
+        </div>
     </div>
   );
 };

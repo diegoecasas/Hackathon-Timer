@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Phase, HackathonEvent } from '../types';
+import { Phase, HackathonEvent, DaySchedule } from '../types';
 import ToolLibrary from './ToolLibrary';
 import { Tool } from '../toolLibraryData';
 
@@ -22,21 +22,17 @@ const formatTotalDuration = (totalMinutes: number): string => {
 const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }) => {
   const [eventName, setEventName] = useState('');
   const [phases, setPhases] = useState<Phase[]>([]);
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
-
+  const [daySchedules, setDaySchedules] = useState<DaySchedule[]>([]);
 
   // Refs for drag and drop for reordering
   const dragPhaseIndex = useRef<number | null>(null);
   const dragOverPhaseIndex = useRef<number | null>(null);
 
-
   useEffect(() => {
     if (eventToEdit) {
       setEventName(eventToEdit.name || '');
       setPhases(eventToEdit.phases || []);
-      setStartTime(eventToEdit.startTime || '');
-      setEndTime(eventToEdit.endTime || '');
+      setDaySchedules(eventToEdit.daySchedules || [{ startTime: '', endTime: '' }]);
     } else {
       setEventName('Mi Taller de Innovación');
       setPhases([
@@ -46,10 +42,24 @@ const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }
         { id: crypto.randomUUID(), name: 'Preparación de Pitch', duration: 60 },
         { id: crypto.randomUUID(), name: 'Pitches Finales', duration: 60 },
       ]);
-      setStartTime('');
-      setEndTime('');
+      setDaySchedules([{ startTime: '', endTime: '' }]);
     }
   }, [eventToEdit]);
+
+  const handleNumberOfDaysChange = (days: number) => {
+    const newDaySchedules = [...daySchedules];
+    while (newDaySchedules.length < days) {
+      newDaySchedules.push({ startTime: '', endTime: '' });
+    }
+    setDaySchedules(newDaySchedules.slice(0, days));
+  };
+  
+  const handleDayScheduleChange = (index: number, field: keyof DaySchedule, value: string) => {
+    const newSchedules = [...daySchedules];
+    newSchedules[index] = { ...newSchedules[index], [field]: value };
+    setDaySchedules(newSchedules);
+  };
+
   
   const totalDuration = useMemo(() => {
     return phases.reduce((acc, phase) => acc + (phase.duration || 0), 0);
@@ -84,8 +94,7 @@ const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }
       id: eventToEdit?.id || crypto.randomUUID(),
       name: eventName,
       phases,
-      startTime,
-      endTime,
+      daySchedules,
     };
     onSave(eventData);
   };
@@ -149,41 +158,59 @@ const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-              <label htmlFor="eventName" className="block text-lg font-bold text-teal-300 mb-2">Nombre del Taller</label>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="sm:col-span-2">
+                <label htmlFor="eventName" className="block text-lg font-bold text-teal-300 mb-2">Nombre del Taller</label>
+                <input
+                    id="eventName"
+                    type="text"
+                    value={eventName}
+                    onChange={(e) => setEventName(e.target.value)}
+                    placeholder="Ej: Taller de Innovación AI"
+                    className="w-full bg-gray-800 text-white p-3 rounded-md border border-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none"
+                    required
+                />
+            </div>
+            <div>
+              <label htmlFor="numberOfDays" className="block text-lg font-bold text-teal-300 mb-2">Cantidad de Días</label>
               <input
-                  id="eventName"
-                  type="text"
-                  value={eventName}
-                  onChange={(e) => setEventName(e.target.value)}
-                  placeholder="Ej: Taller de Innovación AI"
-                  className="w-full bg-gray-800 text-white p-3 rounded-md border border-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none"
-                  required
+                id="numberOfDays"
+                type="number"
+                value={daySchedules.length}
+                onChange={(e) => handleNumberOfDaysChange(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                className="w-full bg-gray-800 text-white p-3 rounded-md border border-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none"
+                min="1"
               />
+            </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <label htmlFor="startTime" className="block text-lg font-bold text-teal-300 mb-2">Hora de Inicio</label>
-              <input
-                id="startTime"
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="w-full bg-gray-800 text-white p-3 rounded-md border border-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none"
-              />
+          {daySchedules.map((schedule, index) => (
+            <div key={index} className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+              <h3 className="text-lg font-bold text-teal-300 mb-3">Día {index + 1}</h3>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1">
+                  <label htmlFor={`startTime-${index}`} className="block text-sm font-semibold text-gray-400 mb-2">Hora de Inicio</label>
+                  <input
+                    id={`startTime-${index}`}
+                    type="time"
+                    value={schedule.startTime}
+                    onChange={(e) => handleDayScheduleChange(index, 'startTime', e.target.value)}
+                    className="w-full bg-gray-700 text-white p-3 rounded-md border border-gray-600 focus:ring-2 focus:ring-teal-400 focus:outline-none"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label htmlFor={`endTime-${index}`} className="block text-sm font-semibold text-gray-400 mb-2">Hora de Finalización</label>
+                  <input
+                    id={`endTime-${index}`}
+                    type="time"
+                    value={schedule.endTime}
+                    onChange={(e) => handleDayScheduleChange(index, 'endTime', e.target.value)}
+                    className="w-full bg-gray-700 text-white p-3 rounded-md border border-gray-600 focus:ring-2 focus:ring-teal-400 focus:outline-none"
+                  />
+                </div>
+              </div>
             </div>
-            <div className="flex-1">
-              <label htmlFor="endTime" className="block text-lg font-bold text-teal-300 mb-2">Hora de Finalización</label>
-              <input
-                id="endTime"
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="w-full bg-gray-800 text-white p-3 rounded-md border border-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none"
-              />
-            </div>
-          </div>
+          ))}
 
           <div 
             className="space-y-4 p-2 border-dashed border-2 border-transparent"

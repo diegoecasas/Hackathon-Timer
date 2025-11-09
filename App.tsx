@@ -13,7 +13,7 @@ import { useTimer } from './hooks/useTimer';
 import { useEventStore } from './hooks/useEventStore';
 import { useAuth } from './hooks/useAuth';
 import { getPhaseTip } from './services/geminiService';
-import { HackathonEvent, HackathonEventTemplate, TimerStatus } from './types';
+import { HackathonEvent, TimerStatus, HackathonEventTemplate } from './types';
 
 type View = 'AUTH' | 'LIBRARY' | 'TEMPLATES' | 'SETUP' | 'TIMER';
 type AuthView = 'LOGIN' | 'SIGNUP';
@@ -85,12 +85,18 @@ function App() {
 
   const handleSelectTemplate = (template: HackathonEventTemplate) => {
     const newEvent: Partial<HackathonEvent> = {
-      ...template,
-      phases: template.phases.map(p => ({...p, id: crypto.randomUUID()}))
+        name: template.name,
+        daySchedules: template.daySchedules?.map(day => ({
+            ...day,
+            phases: day.phases.map(p => ({ ...p, id: crypto.randomUUID() }))
+        }))
     };
+    // Flatten phases for the timer
+    newEvent.phases = newEvent.daySchedules?.flatMap(d => d.phases);
     setEventToEdit(newEvent);
     setView('SETUP');
-  };
+};
+
 
   const handleCreateFromScratch = () => {
     setEventToEdit(null);

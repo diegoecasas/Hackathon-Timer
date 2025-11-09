@@ -8,7 +8,7 @@ interface TemplateLibraryProps {
     onBack: () => void;
 }
 
-const formatTotalDuration = (phases: Phase[]): string => {
+const formatTotalDuration = (phases: { duration: number }[]): string => {
   const totalMinutes = phases.reduce((acc, phase) => acc + phase.duration, 0);
   if (totalMinutes === 0) return '0m';
   const hours = Math.floor(totalMinutes / 60);
@@ -16,20 +16,23 @@ const formatTotalDuration = (phases: Phase[]): string => {
   return `${hours > 0 ? `${hours}h ` : ''}${minutes > 0 ? `${minutes}m` : ''}`.trim();
 };
 
-const TemplateCard: React.FC<{ template: HackathonEventTemplate; onSelect: () => void; }> = ({ template, onSelect }) => (
+const TemplateCard: React.FC<{ template: HackathonEventTemplate; onSelect: () => void; }> = ({ template, onSelect }) => {
+  const allPhases = template.daySchedules.flatMap(day => day.phases);
+  return (
   <div className="bg-white/10 dark:bg-gray-800/50 p-6 rounded-2xl shadow-lg border border-white/20 flex flex-col justify-between transition-transform hover:scale-105 hover:border-teal-400">
     <div>
       <h3 className="text-2xl font-bold text-teal-300 truncate mb-2">{template.name}</h3>
       <div className="text-gray-400 space-y-1 mb-4">
-        <p>{template.phases.length} Fases</p>
-        <p>Duración Total: <span className="font-mono">{formatTotalDuration(template.phases)}</span></p>
+        <p>{allPhases.length} Fases</p>
+        <p>Duración Total: <span className="font-mono">{formatTotalDuration(allPhases)}</span></p>
       </div>
     </div>
     <button onClick={onSelect} className="w-full mt-4 px-4 py-2 text-base font-bold rounded-lg transition-all bg-teal-500 text-white hover:bg-teal-400 focus:ring-4 focus:ring-teal-300">
         Seleccionar Plantilla
     </button>
   </div>
-);
+  );
+};
 
 
 const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onSelectTemplate, onCreateFromScratch, onBack }) => {

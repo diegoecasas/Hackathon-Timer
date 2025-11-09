@@ -15,16 +15,24 @@ export enum TimerStatus {
 export interface DaySchedule {
   startTime: string;
   endTime: string;
+  phases: Phase[];
 }
 
 export interface HackathonEvent {
   id: string;
   name:string;
-  phases: Phase[];
-  daySchedules?: DaySchedule[];
+  phases: Phase[]; // This will be a flattened array of all phases from all days for the timer
+  daySchedules: DaySchedule[];
 }
 
-export type HackathonEventTemplate = Omit<HackathonEvent, 'id'>;
+export type HackathonEventTemplate = {
+  name: string;
+  daySchedules: {
+    startTime: string;
+    endTime: string;
+    phases: Omit<Phase, 'id'>[];
+  }[];
+};
 
 
 export interface User {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Phase, HackathonEvent } from '../types';
 
 interface TimerSetupProps {
@@ -10,6 +10,11 @@ interface TimerSetupProps {
 const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }) => {
   const [eventName, setEventName] = useState('');
   const [phases, setPhases] = useState<Phase[]>([]);
+
+  // Refs for drag and drop
+  const dragPhaseIndex = useRef<number | null>(null);
+  const dragOverPhaseIndex = useRef<number | null>(null);
+
 
   useEffect(() => {
     if (eventToEdit) {
@@ -60,6 +65,30 @@ const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }
     onSave(eventData);
   };
 
+  const handleSort = () => {
+    if (dragPhaseIndex.current === null || dragOverPhaseIndex.current === null) {
+      return;
+    }
+    
+    // Evita reordenar si se suelta en el mismo lugar
+    if (dragPhaseIndex.current === dragOverPhaseIndex.current) {
+        return;
+    }
+
+    const phasesCopy = [...phases];
+    // Guarda la fase que se está moviendo
+    const [movedPhase] = phasesCopy.splice(dragPhaseIndex.current, 1);
+    // Inserta la fase en la nueva posición
+    phasesCopy.splice(dragOverPhaseIndex.current, 0, movedPhase);
+
+    // Limpia los refs
+    dragPhaseIndex.current = null;
+    dragOverPhaseIndex.current = null;
+
+    // Actualiza el estado
+    setPhases(phasesCopy);
+  };
+
   const isEditing = eventToEdit && eventToEdit.id;
 
   return (
@@ -88,7 +117,25 @@ const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }
         <div className="space-y-4">
             <h2 className="text-lg font-bold text-teal-300">Fases del Taller</h2>
             {phases.map((phase, index) => (
-            <div key={phase.id} className="flex items-center gap-3 bg-gray-800 p-3 rounded-lg border border-gray-700">
+            <div 
+                key={phase.id} 
+                className="flex items-center gap-3 bg-gray-800 p-3 rounded-lg border border-gray-700 transition-shadow hover:shadow-lg hover:shadow-teal-500/10"
+                draggable
+                onDragStart={() => (dragPhaseIndex.current = index)}
+                onDragEnter={() => (dragOverPhaseIndex.current = index)}
+                onDragEnd={handleSort}
+                onDragOver={(e) => e.preventDefault()}
+                >
+                <div className="cursor-move text-gray-500 hover:text-white" aria-label="Arrastrar para reordenar">
+                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-6 w-6">
+                        <circle cx="9" cy="6" r="1.5" fill="currentColor"></circle>
+                        <circle cx="15" cy="6" r="1.5" fill="currentColor"></circle>
+                        <circle cx="9" cy="12" r="1.5" fill="currentColor"></circle>
+                        <circle cx="15" cy="12" r="1.5" fill="currentColor"></circle>
+                        <circle cx="9" cy="18" r="1.5" fill="currentColor"></circle>
+                        <circle cx="15" cy="18" r="1.5" fill="currentColor"></circle>
+                    </svg>
+                </div>
                 <span className="text-gray-400 font-bold">{index + 1}</span>
                 <input
                 type="text"

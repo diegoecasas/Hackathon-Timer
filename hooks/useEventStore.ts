@@ -34,25 +34,23 @@ export const useEventStore = (userId: string | null) => {
   }, [events, userId]);
 
   const saveEvent = useCallback((eventToSave: HackathonEvent) => {
-    setEvents(currentEvents => {
-      const eventExists = currentEvents.some(event => event.id === eventToSave.id);
-      if (eventExists) {
-        // Actualizar taller existente
-        return currentEvents.map(event =>
-          event.id === eventToSave.id ? eventToSave : event
-        );
-      } else {
-        // Añadir nuevo taller
-        return [...currentEvents, eventToSave];
-      }
-    });
-  }, []);
+    const eventExists = events.some(event => event.id === eventToSave.id);
+    if (eventExists) {
+      // Actualizar taller existente
+      setEvents(events.map(event =>
+        event.id === eventToSave.id ? eventToSave : event
+      ));
+    } else {
+      // Añadir nuevo taller
+      setEvents([...events, eventToSave]);
+    }
+  }, [events]);
 
   const deleteEvent = useCallback((eventId: string) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar este taller?')) {
-      setEvents(currentEvents => currentEvents.filter(event => event.id !== eventId));
+      setEvents(events.filter(event => event.id !== eventId));
     }
-  }, []);
+  }, [events]);
 
   return { events, saveEvent, deleteEvent };
 };

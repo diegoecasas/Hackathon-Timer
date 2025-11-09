@@ -147,19 +147,29 @@ const App: React.FC = () => {
   const phaseDuration = currentPhase.duration * 60;
   const phasePercentage = phaseDuration > 0 ? (phaseTimeRemaining / phaseDuration) * 100 : 0;
   
-  const getBackgroundColorClass = (percentage: number): string => {
-    if (percentage <= 10) return 'from-red-600 to-red-500';
-    if (percentage <= 30) return 'from-yellow-500 to-yellow-400';
-    return 'from-teal-700 to-teal-600';
+  const getUIColors = (percentage: number): {bg: string, progress: string, track: string} => {
+    if (percentage <= 10) return { bg: 'from-red-300 to-red-200', progress: 'text-red-500', track: 'text-red-500/20' };
+    if (percentage <= 30) return { bg: 'from-yellow-300 to-yellow-200', progress: 'text-yellow-500', track: 'text-yellow-500/20' };
+    return { bg: 'from-teal-400 to-teal-300', progress: 'text-teal-600', track: 'text-teal-600/20' };
   };
 
-  const backgroundClass = (status === TimerStatus.RUNNING || status === TimerStatus.PAUSED) && status !== TimerStatus.FINISHED
-    ? getBackgroundColorClass(phasePercentage)
+  const isLightBg = (status === TimerStatus.RUNNING || status === TimerStatus.PAUSED) && status !== TimerStatus.FINISHED;
+  
+  const { bg: backgroundClassFromPercentage, progress: progressColorFromPercentage, track: trackColorFromPercentage } = getUIColors(phasePercentage);
+
+  const backgroundClass = isLightBg
+    ? backgroundClassFromPercentage
     : 'from-[#0a192f] to-[#112240]';
+    
+  const progressColorClass = isLightBg ? progressColorFromPercentage : 'text-teal-400';
+  const trackColorClass = isLightBg ? trackColorFromPercentage : 'text-teal-400/20';
+  
+  const titleColorClass = isLightBg ? 'text-gray-900' : 'text-teal-300';
+  const subtitleColorClass = isLightBg ? 'text-gray-700' : 'text-gray-400';
 
 
   return (
-    <main className={`min-h-screen text-white flex flex-col items-center justify-center p-4 sm:p-8 space-y-8 bg-gradient-to-br ${backgroundClass} transition-colors duration-1000 ease-in-out`}>
+    <main className={`min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 space-y-8 bg-gradient-to-br ${backgroundClass} transition-colors duration-1000 ease-in-out`}>
       {isAlarmPlaying && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm">
           <div className="bg-gray-800 p-8 rounded-xl shadow-2xl text-center border-2 border-red-500 animate-pulse">
@@ -175,8 +185,8 @@ const App: React.FC = () => {
         </div>
       )}
        <div className="text-center">
-         <h1 className="text-4xl sm:text-5xl font-extrabold text-teal-300">Hackathon Timer</h1>
-         <p className="text-gray-400 mt-2">Mantente enfocado y energizado. ¡Estás haciendo un gran trabajo!</p>
+         <h1 className={`text-4xl sm:text-5xl font-extrabold ${titleColorClass} transition-colors duration-500`}>Hackathon Timer</h1>
+         <p className={`${subtitleColorClass} mt-2 transition-colors duration-500`}>Mantente enfocado y energizado. ¡Estás haciendo un gran trabajo!</p>
        </div>
 
       <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -190,6 +200,9 @@ const App: React.FC = () => {
               phaseTimeRemaining={phaseTimeRemaining}
               totalTimeRemaining={totalTimeRemaining}
               phasePercentage={phasePercentage}
+              isLightBg={isLightBg}
+              progressColorClass={progressColorClass}
+              trackColorClass={trackColorClass}
             />
             <Controls
                 status={status}

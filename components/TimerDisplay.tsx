@@ -6,6 +6,9 @@ interface TimerDisplayProps {
   phaseTimeRemaining: number;
   totalTimeRemaining: number;
   phasePercentage: number;
+  isLightBg?: boolean;
+  progressColorClass?: string;
+  trackColorClass?: string;
 }
 
 const formatTime = (seconds: number) => {
@@ -30,14 +33,22 @@ const TimerDisplay: React.FC<TimerDisplayProps> = ({
   phaseTimeRemaining,
   totalTimeRemaining,
   phasePercentage,
+  isLightBg = false,
+  progressColorClass = 'text-teal-400',
+  trackColorClass = 'text-teal-400/20',
 }) => {
+  const textColorClass = isLightBg ? 'text-black' : 'text-white';
+  const accentColorClass = isLightBg ? 'text-gray-900' : 'text-teal-300';
+  const mutedColorClass = isLightBg ? 'text-gray-700' : 'text-gray-400';
+  const innerBgClass = isLightBg ? 'bg-white/60' : 'bg-[#0a192f]';
+
   return (
     // Relative container for positioning all concentric circles
     <div className="relative w-80 h-80 sm:w-96 sm:h-96">
       
       {/* 1. Solid background circle in the center */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-52 h-52 sm:w-64 sm:h-64 bg-[#0a192f] rounded-full shadow-2xl" />
+        <div className={`w-52 h-52 sm:w-64 sm:h-64 ${innerBgClass} rounded-full shadow-2xl transition-colors duration-500`} />
       </div>
 
       {/* 2. Inner Decorative Static Ring */}
@@ -72,8 +83,8 @@ const TimerDisplay: React.FC<TimerDisplayProps> = ({
             percentage={phasePercentage}
             size={310} // Largest ring, fits inside the container
             strokeWidth={8} // Thinner
-            color="text-teal-400"
-            trackColor="text-teal-400/20"
+            color={progressColorClass}
+            trackColor={trackColorClass}
           />
         </div>
         {/* Desktop */}
@@ -82,19 +93,19 @@ const TimerDisplay: React.FC<TimerDisplayProps> = ({
             percentage={phasePercentage}
             size={370} // Largest ring, fits inside the container
             strokeWidth={10} // Thinner
-            color="text-teal-400"
-            trackColor="text-teal-400/20"
+            color={progressColorClass}
+            trackColor={trackColorClass}
           />
         </div>
       </div>
       
       {/* 4. Text content, on top of everything */}
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center">
-        <p className="text-xl sm:text-2xl font-semibold text-teal-300 mb-2 px-4 truncate max-w-full">{phaseName}</p>
-        <h2 className="text-5xl sm:text-7xl font-bold text-white tracking-tighter font-mono">
+        <p className={`text-xl sm:text-2xl font-semibold ${accentColorClass} mb-2 px-4 truncate max-w-full transition-colors duration-500`}>{phaseName}</p>
+        <h2 className={`text-5xl sm:text-7xl font-bold text-white tracking-tighter font-mono ${textColorClass} transition-colors duration-500`}>
           {formatTime(phaseTimeRemaining)}
         </h2>
-        <p className="text-lg sm:text-xl text-gray-400 mt-2">
+        <p className={`text-lg sm:text-xl text-gray-400 mt-2 ${mutedColorClass} transition-colors duration-500`}>
           Total: {formatTime(totalTimeRemaining)}
         </p>
       </div>

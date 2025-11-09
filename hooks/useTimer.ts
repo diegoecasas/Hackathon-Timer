@@ -1,6 +1,6 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Phase, TimerStatus } from '../types';
+import { tickSound, buzzerSound } from '../assets/sounds';
 
 interface UseTimerProps {
   phases: Phase[];
@@ -15,6 +15,14 @@ export const useTimer = ({ phases, onPhaseChange, onFinish }: UseTimerProps) => 
   const [phaseTimeRemaining, setPhaseTimeRemaining] = useState(0);
 
   const intervalRef = useRef<number | null>(null);
+  const tickAudioRef = useRef<HTMLAudioElement | null>(null);
+  const buzzerAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Inicializar los elementos de audio una sola vez
+    tickAudioRef.current = new Audio(tickSound);
+    buzzerAudioRef.current = new Audio(buzzerSound);
+  }, []);
 
   const calculateTotalTime = useCallback((startIndex: number, phasesList: Phase[]) => {
     return phasesList.slice(startIndex).reduce((acc, phase) => acc + phase.duration * 60, 0);
@@ -69,11 +77,21 @@ export const useTimer = ({ phases, onPhaseChange, onFinish }: UseTimerProps) => 
 
     intervalRef.current = window.setInterval(() => {
       setPhaseTimeRemaining(prev => {
+        const currentPhaseDuration = phases[currentPhaseIndex]?.duration * 60 || 0;
+        const tenPercentMark = Math.floor(currentPhaseDuration * 0.1);
+
+        // Reproducir tic-tac en el último 10% del tiempo
+        if (prev > 1 && prev <= tenPercentMark) {
+            tickAudioRef.current?.play().catch(e => console.error("Error playing tick sound:", e));
+        }
+        
         if (prev > 1) {
           return prev - 1;
         }
-
-        // Phase finished
+        
+        // La fase ha terminado
+        buzzerAudioRef.current?.play().catch(e => console.error("Error playing buzzer sound:", e));
+        
         const nextPhaseIndex = currentPhaseIndex + 1;
         if (nextPhaseIndex < phases.length) {
           setCurrentPhaseIndex(nextPhaseIndex);

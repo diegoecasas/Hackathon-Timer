@@ -38,76 +38,84 @@ const TimerDisplay: React.FC<TimerDisplayProps> = ({
   trackColorClass = 'text-teal-400/20',
 }) => {
   const textColorClass = isLightBg ? 'text-black' : 'text-white';
-  const accentColorClass = isLightBg ? 'text-gray-900' : 'text-teal-300';
   const mutedColorClass = isLightBg ? 'text-gray-700' : 'text-gray-400';
   const innerBgClass = isLightBg ? 'bg-white/60' : 'bg-[#0a192f]';
 
   return (
-    // Relative container for positioning all concentric circles
-    <div className="relative w-80 h-80 sm:w-96 sm:h-96">
-      
-      {/* 1. Solid background circle in the center */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className={`w-52 h-52 sm:w-64 sm:h-64 ${innerBgClass} rounded-full shadow-2xl transition-colors duration-500`} />
-      </div>
+    <div className="flex flex-col items-center">
+      {/* Title moved above the clock for better readability */}
+      <h2 
+        className={`text-2xl sm:text-3xl font-bold text-center mb-4 px-4 ${textColorClass} transition-colors duration-500`} 
+        title={phaseName}
+      >
+        {phaseName}
+      </h2>
 
-      {/* 2. Inner Decorative Static Ring */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        {/* Mobile */}
-        <div className="block sm:hidden">
-          <CircularProgress
-            percentage={100}
-            size={250} // Smaller than outer ring
-            strokeWidth={20} // Thicker
-            color="text-slate-800"
-            trackColor="text-slate-800"
-          />
+      {/* Relative container for positioning all concentric circles */}
+      <div className="relative w-80 h-80 sm:w-96 sm:h-96">
+        
+        {/* 1. Solid background circle in the center */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className={`w-52 h-52 sm:w-64 sm:h-64 ${innerBgClass} rounded-full shadow-2xl transition-colors duration-500`} />
         </div>
-        {/* Desktop */}
-        <div className="hidden sm:block">
-          <CircularProgress
-            percentage={100}
-            size={300} // Smaller than outer ring
-            strokeWidth={24} // Thicker
-            color="text-slate-800"
-            trackColor="text-slate-800"
-          />
+
+        {/* 2. Inner Decorative Static Ring (Thinner) */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {/* Mobile */}
+          <div className="block sm:hidden">
+            <CircularProgress
+              percentage={100}
+              size={250}
+              strokeWidth={12}
+              color="text-slate-800"
+              trackColor="text-slate-800"
+            />
+          </div>
+          {/* Desktop */}
+          <div className="hidden sm:block">
+            <CircularProgress
+              percentage={100}
+              size={300}
+              strokeWidth={16}
+              color="text-slate-800"
+              trackColor="text-slate-800"
+            />
+          </div>
         </div>
-      </div>
-      
-      {/* 3. Outer Progress Ring */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        {/* Mobile */}
-        <div className="block sm:hidden">
-          <CircularProgress
-            percentage={phasePercentage}
-            size={310} // Largest ring, fits inside the container
-            strokeWidth={8} // Thinner
-            color={progressColorClass}
-            trackColor={trackColorClass}
-          />
+        
+        {/* 3. Outer Progress Ring (Thicker) */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {/* Mobile */}
+          <div className="block sm:hidden">
+            <CircularProgress
+              percentage={phasePercentage}
+              size={310} 
+              strokeWidth={24}
+              color={progressColorClass}
+              trackColor={trackColorClass}
+            />
+          </div>
+          {/* Desktop */}
+          <div className="hidden sm:block">
+            <CircularProgress
+              percentage={phasePercentage}
+              size={370} 
+              strokeWidth={32}
+              color={progressColorClass}
+              trackColor={trackColorClass}
+            />
+          </div>
         </div>
-        {/* Desktop */}
-        <div className="hidden sm:block">
-          <CircularProgress
-            percentage={phasePercentage}
-            size={370} // Largest ring, fits inside the container
-            strokeWidth={10} // Thinner
-            color={progressColorClass}
-            trackColor={trackColorClass}
-          />
+        
+        {/* 4. Text content, on top of everything */}
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center">
+          <h2 className={`text-5xl sm:text-7xl font-bold text-white tracking-tighter font-mono ${textColorClass} transition-colors duration-500`}>
+            {formatTime(phaseTimeRemaining)}
+          </h2>
+          <p className={`text-lg sm:text-xl text-gray-400 mt-2 ${mutedColorClass} transition-colors duration-500`}>
+            Total: {formatTime(totalTimeRemaining)}
+          </p>
         </div>
-      </div>
-      
-      {/* 4. Text content, on top of everything */}
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center">
-        <p className={`text-xl sm:text-2xl font-semibold ${accentColorClass} mb-2 px-4 truncate max-w-full transition-colors duration-500`}>{phaseName}</p>
-        <h2 className={`text-5xl sm:text-7xl font-bold text-white tracking-tighter font-mono ${textColorClass} transition-colors duration-500`}>
-          {formatTime(phaseTimeRemaining)}
-        </h2>
-        <p className={`text-lg sm:text-xl text-gray-400 mt-2 ${mutedColorClass} transition-colors duration-500`}>
-          Total: {formatTime(totalTimeRemaining)}
-        </p>
       </div>
     </div>
   );

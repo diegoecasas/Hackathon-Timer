@@ -25,7 +25,7 @@ export const useEventStore = (userId: string | null) => {
 
   // Efecto para sincronizar automáticamente los cambios de estado con localStorage
   useEffect(() => {
-    if (!userId || !events) return; // No guardar si no hay usuario o talleres
+    if (!userId) return;
     try {
       localStorage.setItem(getStorageKey(userId), JSON.stringify(events));
     } catch (error) {
@@ -34,23 +34,25 @@ export const useEventStore = (userId: string | null) => {
   }, [events, userId]);
 
   const saveEvent = useCallback((eventToSave: HackathonEvent) => {
-    const eventExists = events.some(event => event.id === eventToSave.id);
-    if (eventExists) {
-      // Actualizar taller existente
-      setEvents(events.map(event =>
-        event.id === eventToSave.id ? eventToSave : event
-      ));
-    } else {
-      // Añadir nuevo taller
-      setEvents([...events, eventToSave]);
-    }
-  }, [events]);
+    setEvents(prevEvents => {
+      const eventExists = prevEvents.some(event => event.id === eventToSave.id);
+      if (eventExists) {
+        // Actualizar taller existente
+        return prevEvents.map(event =>
+          event.id === eventToSave.id ? eventToSave : event
+        );
+      } else {
+        // Añadir nuevo taller
+        return [...prevEvents, eventToSave];
+      }
+    });
+  }, []);
 
   const deleteEvent = useCallback((eventId: string) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar este taller?')) {
-      setEvents(events.filter(event => event.id !== eventId));
+      setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
     }
-  }, [events]);
+  }, []);
 
   return { events, saveEvent, deleteEvent };
 };

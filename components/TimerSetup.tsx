@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Phase, HackathonEvent } from '../types';
 
 interface TimerSetupProps {
@@ -6,6 +6,16 @@ interface TimerSetupProps {
   onCancel: () => void;
   eventToEdit?: Partial<HackathonEvent> | null;
 }
+
+const formatTotalDuration = (totalMinutes: number): string => {
+  if (isNaN(totalMinutes) || totalMinutes === 0) return '0m';
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  const hoursString = hours > 0 ? `${hours}h` : '';
+  const minutesString = minutes > 0 ? `${minutes}m` : '';
+  return `${hoursString} ${minutesString}`.trim();
+};
+
 
 const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }) => {
   const [eventName, setEventName] = useState('');
@@ -31,6 +41,10 @@ const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }
       ]);
     }
   }, [eventToEdit]);
+  
+  const totalDuration = useMemo(() => {
+    return phases.reduce((acc, phase) => acc + (phase.duration || 0), 0);
+  }, [phases]);
 
   const handlePhaseChange = (id: string, field: keyof Omit<Phase, 'id'>, value: string) => {
     setPhases(currentPhases =>
@@ -168,28 +182,36 @@ const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }
             ))}
         </div>
         
-        <div className="flex items-center pt-6 mt-6 border-t border-gray-700/50">
-          <button
-            type="button"
-            onClick={addPhase}
-            className="px-6 py-2 font-semibold text-teal-300 border-2 border-teal-400 rounded-lg hover:bg-teal-400/20 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-gray-900"
-          >
-            Añadir Fase
-          </button>
-          <div className="flex items-center gap-4 ml-auto">
+        <div className="pt-6 mt-6 border-t border-gray-700/50 space-y-6">
+           <div className="text-center">
+            <span className="text-lg font-semibold text-teal-300">Duración Total:</span>
+            <span className="ml-2 font-mono text-xl font-bold text-white">{formatTotalDuration(totalDuration)}</span>
+          </div>
+
+          <div className="flex items-center justify-between">
             <button
               type="button"
-              onClick={onCancel}
-              className="px-6 py-2 font-semibold rounded-lg transition-colors duration-200 bg-gray-800 text-gray-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900 border-2 border-transparent"
+              onClick={addPhase}
+              className="px-6 py-2 font-semibold text-teal-300 border-2 border-teal-400 rounded-lg hover:bg-teal-400/20 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-gray-900"
             >
-              Cancelar
+              Añadir Fase
             </button>
-            <button
-              type="submit"
-              className="px-6 py-2 font-semibold rounded-lg transition-colors duration-200 bg-teal-500 text-white hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-gray-900 shadow-lg shadow-teal-500/20 border-2 border-transparent"
-            >
-              Guardar Taller
-            </button>
+            
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="px-6 py-2 font-semibold rounded-lg transition-colors duration-200 bg-gray-800 text-gray-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900 border-2 border-transparent"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-6 py-2 font-semibold rounded-lg transition-colors duration-200 bg-teal-500 text-white hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-gray-900 shadow-lg shadow-teal-500/20 border-2 border-transparent"
+              >
+                Guardar Taller
+              </button>
+            </div>
           </div>
         </div>
       </form>

@@ -22,6 +22,7 @@ const formatTotalDuration = (totalMinutes: number): string => {
 const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }) => {
   const [eventName, setEventName] = useState('');
   const [daySchedules, setDaySchedules] = useState<DaySchedule[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   // Refs para drag and drop para reordenar
   const dragPhaseRef = useRef<{ dayIndex: number; phaseIndex: number } | null>(null);
@@ -94,10 +95,43 @@ const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null); // Limpiar errores previos
+
     if (!eventName.trim()) {
-        alert("El nombre del taller no puede estar vacío.");
+        setError("El nombre del taller no puede estar vacío.");
         return;
     }
+
+    // --- Validación de duración de fases vs. horario del día ---
+    for (let i = 0; i < daySchedules.length; i++) {
+      const schedule = daySchedules[i];
+      const { startTime, endTime, phases } = schedule;
+
+      if (startTime && endTime) {
+        const [startHours, startMinutes] = startTime.split(':').map(Number);
+        const [endHours, endMinutes] = endTime.split(':').map(Number);
+
+        const totalStartMinutes = startHours * 60 + startMinutes;
+        const totalEndMinutes = endHours * 60 + endMinutes;
+
+        if (totalEndMinutes <= totalStartMinutes) {
+          setError(`Error en el Día ${i + 1}: La hora de finalización debe ser posterior a la hora de inicio.`);
+          return; // Detener el guardado
+        }
+
+        const availableMinutes = totalEndMinutes - totalStartMinutes;
+        const scheduledMinutes = phases.reduce((total, phase) => total + (phase.duration || 0), 0);
+
+        if (scheduledMinutes > availableMinutes) {
+          const formattedScheduled = formatTotalDuration(scheduledMinutes);
+          const formattedAvailable = formatTotalDuration(availableMinutes);
+          setError(`Error en el Día ${i + 1}: La duración de las fases (${formattedScheduled}) excede el tiempo disponible en el horario (${formattedAvailable}). Por favor, ajusta los horarios o las fases.`);
+          return; // Detener el guardado
+        }
+      }
+    }
+    // --- Fin de la validación ---
+
     const flattenedPhases = daySchedules.flatMap(day => day.phases);
     const eventData: HackathonEvent = {
       id: eventToEdit?.id || crypto.randomUUID(),
@@ -169,6 +203,21 @@ const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Componente de alerta de error */}
+          {error && (
+            <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-3 rounded-lg relative flex justify-between items-center" role="alert">
+              <span className="block sm:inline pr-4">{error}</span>
+              <button
+                type="button"
+                className="p-1 rounded-full hover:bg-red-500/30 transition-colors"
+                onClick={() => setError(null)}
+                aria-label="Cerrar"
+              >
+                <svg className="fill-current h-5 w-5 text-red-300" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Cerrar</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+              </button>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-2">
                 <label htmlFor="eventName" className="block text-lg font-bold text-teal-300 mb-2">Nombre del Taller</label>

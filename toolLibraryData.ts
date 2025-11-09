@@ -12,6 +12,43 @@ export interface ToolCategory {
 
 export const toolCategories: ToolCategory[] = [
   {
+    categoryName: "FASE ADMINISTRATIVA",
+    tools: [
+      { name: "Registro y bienvenida", duration: 15 },
+      { name: "Presentación de participantes", duration: 20 },
+      { name: "Icebreaker", duration: 15 },
+      { name: "Explicación de agenda y objetivos", duration: 10 },
+      { name: "Reglas y normas del taller", duration: 10 },
+      { name: "Formación de equipos", duration: 15 },
+      { name: "Asignación de roles", duration: 10 },
+      { name: "Configuración de espacios de trabajo", duration: 15 },
+      { name: "Break corto", duration: 10 },
+      { name: "Break", duration: 15 },
+      { name: "Break largo", duration: 20 },
+      { name: "Almuerzo", duration: 60 },
+      { name: "Snack break", duration: 10 },
+      { name: "Energizer", duration: 5 },
+      { name: "Cambio de actividad", duration: 5 },
+      { name: "Rotación de equipos", duration: 10 },
+      { name: "Preparación de materiales", duration: 10 },
+      { name: "Limpieza de espacio", duration: 5 },
+      { name: "Montaje para siguiente actividad", duration: 10 },
+      { name: "Recap del día", duration: 15 },
+      { name: "Reflexión individual", duration: 10 },
+      { name: "Compartir aprendizajes", duration: 20 },
+      { name: "Feedback del taller", duration: 15 },
+      { name: "Foto grupal", duration: 5 },
+      { name: "Evaluación", duration: 10 },
+      { name: "Próximos pasos", duration: 15 },
+      { name: "Cierre y agradecimientos", duration: 10 },
+      { name: "Networking", duration: 20 },
+      { name: "Toma de notas", duration: 10 },
+      { name: "Fotografía de resultados", duration: 10 },
+      { name: "Digitalización de contenido", duration: 15 },
+      { name: "Preparación de entregables", duration: 20 },
+    ]
+  },
+  {
     categoryName: "FASE 1: DEFINE (Definir la Oportunidad)",
     tools: [
       { name: "Jobs to be Done (JTBD)", duration: 45 },

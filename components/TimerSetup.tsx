@@ -132,6 +132,7 @@ const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }
     );
   }, []);
   
+  // Fix: Se maneja explícitamente cada campo para asegurar el tipado correcto y evitar errores de TypeScript al asignar valores a la interfaz Phase
   const handlePhaseChange = useCallback((dayIndex: number, phaseId: string, field: 'name' | 'duration', value: string | number) => {
     setDaySchedules(currentSchedules =>
       currentSchedules.map((day, dIndex) => {
@@ -141,10 +142,13 @@ const TimerSetup: React.FC<TimerSetupProps> = ({ onSave, onCancel, eventToEdit }
           phases: day.phases.map(phase => {
             if (phase.id !== phaseId) return phase;
             if (field === 'duration') {
-              const numValue = parseInt(value as string, 10);
+              const numValue = typeof value === 'string' ? parseInt(value, 10) : Number(value);
               return { ...phase, duration: isNaN(numValue) ? 0 : Math.max(0, numValue) };
             }
-            return { ...phase, [field]: value };
+            if (field === 'name') {
+              return { ...phase, name: String(value) };
+            }
+            return phase;
           })
         };
       })

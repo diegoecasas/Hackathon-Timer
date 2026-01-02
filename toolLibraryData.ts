@@ -58,6 +58,69 @@ export const methodologies: Methodology[] = [
     }]
   },
   {
+    methodologyName: "Mobius Loop",
+    categories: [
+      {
+        categoryName: "1. FOUNDATION",
+        tools: [
+          { name: "Check-ins", duration: 10 },
+          { name: "1-2-4-All", duration: 30 },
+          { name: "Working Agreements", duration: 60 },
+          { name: "Architectural Decision Records (ADR)", duration: 60 },
+          { name: "Affinity Mapping", duration: 90 },
+          { name: "15/5 Report", duration: 20 },
+          { name: "Celebrating Failure", duration: 30 },
+          { name: "Team Canvas", duration: 90 },
+          { name: "Burndown Chart (setup y revisión)", duration: 30 },
+          { name: "Behavior-Driven Development – Discovery Session", duration: 120 },
+        ]
+      },
+      {
+        categoryName: "2. DISCOVER",
+        tools: [
+          { name: "User Interviews", duration: 60 },
+          { name: "Jobs To Be Done Interview", duration: 90 },
+          { name: "Empathy Mapping", duration: 60 },
+          { name: "Service Blueprint (Discovery)", duration: 120 },
+          { name: "Problem Framing", duration: 60 },
+          { name: "Assumption Mapping", duration: 60 },
+          { name: "Experiment Canvas", duration: 45 },
+          { name: "Cognitive Loadometer", duration: 15 },
+          { name: "Context Mapping", duration: 90 },
+          { name: "Discovery Kick-off Workshop", duration: 180 },
+        ]
+      },
+      {
+        categoryName: "3. DECIDE",
+        tools: [
+          { name: "Dot Voting", duration: 15 },
+          { name: "Impact vs Effort Matrix", duration: 45 },
+          { name: "How-Now-Wow Matrix", duration: 45 },
+          { name: "Eisenhower Matrix", duration: 30 },
+          { name: "Prioritization Workshop", duration: 120 },
+          { name: "MVP Definition", duration: 90 },
+          { name: "Hypothesis Prioritization", duration: 60 },
+          { name: "Option Pivot", duration: 45 },
+          { name: "Decision Review", duration: 30 },
+        ]
+      },
+      {
+        categoryName: "4. DELIVER",
+        tools: [
+          { name: "Daily Stand-up", duration: 15 },
+          { name: "Sprint Planning", duration: 120 },
+          { name: "Sprint Review", duration: 60 },
+          { name: "4Ls Retrospective", duration: 60 },
+          { name: "Agile Health Check", duration: 30 },
+          { name: "Blameless Postmortem", duration: 90 },
+          { name: "Burn-up Chart Review", duration: 30 },
+          { name: "Experiment Review", duration: 60 },
+          { name: "Continuous Delivery Pipeline Review", duration: 60 },
+        ]
+      }
+    ]
+  },
+  {
     methodologyName: "Innovator's ToolKit",
     categories: [
       {
